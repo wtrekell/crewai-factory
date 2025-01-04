@@ -1,0 +1,152 @@
+design_crew_input:
+  description: >
+    Define the input variables required for the crew to perform its tasks and achieve its purpose: **{crew_purpose}**.
+    Your task is to:
+    - Independently determine the most relevant input variables that will influence the crew's operational processes.
+    - Justify the choice of each input variable, explaining its role and importance for the crew's success.
+    - You are allowed to conduct analysis or research (e.g., search the web) if necessary, to evaluate or refine the input variable options.
+    - Focus on defining variables that are dynamic and flexible to support different use cases or scenarios.
+    - Ensure the input variables align closely with the agents, tasks, and overall crew purpose.
+
+    IMPORTANT:
+    - Ensure the input variables are abstract and actionable, suitable for integration into the crew's processes.
+    - Research only when necessary to verify or improve your decisions.
+  expected_output: >
+    pretty-printed JSON, format: {{ "variable_name": "sample_value"  }}
+    DO NOT include markdown markers
+  agent: content_designer
+
+#    Single String: YAML containing tasks' `description`, `expected_output`, and `agent`.
+
+design_tasks:
+  description: >
+    1. Select 1-3 variables from input variables designed in `design_crew_input` task, that you believe are the most relevant to the tasks' purpose and crew operation.
+       These variables MUST be explicitly referenced (the reference format is: {{variable_name}}) in the task descriptions or expected outputs to achieve the crew's OUTPUT OBJECTIVES: """{crew_output}""".
+       Not that the chosen input will be later used for defining agents. 
+    2. Define meaningful and detailed tasks descriptions and expected outputs, ensuring tasks align with the overall crew purpose and the crew's input variables.
+  expected_output: >
+    A pydantic List of tasks with descriptions, expected outputs, and assigned agents.
+    Check the provided knowledge source for reference. 
+    tasks must have meaningful and short names, 
+    and reflect the input variables which are set as the project's "guiderails".
+  agent: content_designer_gemini2
+
+#    Single String: YAML describing agents' roles, goals, backstories.
+
+design_agents:
+  description: >
+    Define detailed roles, goals, and backstories for each agent in the **{crew_name}** crew.
+    The role should reflect the agent's responsibilities and position within the crew, while mimicking roles in human teams.
+    Ensure agents' skills, expertise, and attributes align with the selected input variables and the crew's purpose.
+    Create realistic personas with communication styles suited to their roles and responsibilities as a part of their backstory.
+    The backstory must include the agent's name for the sake of future roleplaying.
+    Make sure that you utilize some or all variables selected in `design_tasks` task. The reference format is: {{variable_name}}
+  expected_output: >
+    A pydantic List of agents with role, goal, and backstory.
+    Check the provided knowledge source for reference.
+    Agents must have name field describing their role, NOT the human-name. 
+    Created content must reflect the input variables which are set as the project's "guiderails".
+  agent: content_designer_gemini2
+
+review_tasks_and_agents:
+  description: >
+    Perform a comprehensive review of tasks and agents to ensure consistency and efficiency:
+
+    1. Agent-Task Alignment Review:
+       - Validate that each task's `agent` parameter matches an existing agent's role identifier
+       - Identify opportunities to consolidate tasks under single agents based on required skills
+       - Check for redundant agent definitions that can be merged
+    
+    2. Variable Usage Audit:
+       - Verify all relevant tasks reference input variables using {{variable}} syntax
+       - Ensure agent goals and backstories reflect variable constraints where applicable
+       - Check for missing variable references in critical task parameters
+    
+    3. Role Optimization Check:
+       - Analyze skill overlap between agents to identify consolidation opportunities
+       - Evaluate task dependencies to ensure efficient agent assignment
+       - Verify that merged roles don't create bottlenecks in task execution
+    
+    4. Documentation Quality:
+       - Check for consistent role naming conventions
+       - Verify task descriptions maintain proper variable reference format
+       - Ensure agent backstories remain comprehensive after any merging
+    
+    IMPORTANT:
+    - Document every proposed change with clear before/after comparison
+    - Provide specific justification for each modification
+    - Consider impact on task execution timeline when suggesting role consolidation
+  expected_output: >
+    A structured markdown document containing:
+      Summary of Required Changes:
+       - Task Modifications: Initial -> Updated (with justification)
+       - Agent Consolidations: Original Agents -> Merged Agent (with rationale)
+       - Variable Reference Additions: Location -> Suggested Reference
+    
+    Format changes as:
+    ```
+    ## Task Changes
+    [Task Name]
+    - Before: `original content`
+    - After: `modified content`
+    - Justification: explanation
+    
+    ## Agent Consolidations
+    [Agent Names]
+    - Before: `original agents`
+    - After: `consolidated agent`
+    - Justification: explanation
+    
+    ## Variable References
+    [Location]
+    - Missing: `variable name`
+    - Added to: `context`
+    - Justification: explanation
+    ```
+  agent: qa_expert
+
+prepare_review_changes:
+  description: >
+    Using the content from the previous task's output:
+    
+    1. First, analyze the review recommendations and prepare ALL changes:
+       a) Extract and validate all proposed changes from review output
+       b) Collect ALL variable references from the review
+       c) Prepare updated content for each file
+       d) Verify all changes before any file operations:
+          - Check agent references consistency
+          - Validate all variable references
+          - Ensure YAML syntax remains valid
+    
+    2. Prepare the final content for each file:
+       a) tasks.yaml:
+          - Update all agent references to match consolidated roles
+          - Include all variable references as specified in review
+       b) agents.yaml:
+          - Implement all agent consolidations
+          - Update roles and references as specified
+       c) crew_input.yaml:
+          - Extract ALL variables used in the updated content
+          - Include sample values for each variable
+          - Format as YAML: `variable_name: sample_value`. Exclude the code block wrappers.
+    IMPORTANT:
+    - DO NOT write any files until ALL changes are prepared and validated
+    - File writing must be the LAST step
+    - Maintain correct YAML formatting and indentation
+    - Ensure crew_input.yaml contains only variables actively used in tasks and agents
+  expected_output: >
+    Summary of all changes prepared
+  agent: qa_expert
+
+write_review_changes:
+  description: >
+    Your only job is to write the files using FileWriterTool. Get the content from previous task's output.
+    You must write these files in this order:
+    1. tasks.yaml to output_{crew_name}/config/
+    2. agents.yaml to output_{crew_name}/config/
+    3. crew_input.yaml to output_{crew_name}/
+
+  expected_output: Confirmation of file writes and the files content
+  agent: content_designer_gemini2
+
+#    DO NOT INCLUDE ``` markdown wrappers

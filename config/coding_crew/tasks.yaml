@@ -1,0 +1,171 @@
+select_tools:
+  description: >
+    Select appropriate tools for each agent and task:
+
+    1. Review available CrewAI tools:
+       - Check https://docs.crewai.com/concepts/tools for current official tools
+       - Document capabilities and requirements of each applicable tool
+    
+    2. For each agent defined in agents.yaml:
+       - Review role and required capabilities
+       - Choose tools from available CrewAI tools documented in step 1
+       - If no CrewAI tool fits, evaluate LangChain tools
+       - If custom tool needed, define exact requirements
+    
+    3. For each task in tasks.yaml:
+       - Map required capabilities to selected tools
+       - List tool-specific environment variables
+       - Document expected tool outputs
+
+  expected_output: >
+    A structured document (Markdown or YAML) containing:
+    1. Agent-Tool Mapping: List of tools per agent with justifications and environment variables.
+    2. Task-Tool Mapping: List of tools per task with mapping to requirements and input/output formats.
+    3. Custom Tool Specifications: Detailed specifications for any custom tools.
+  agent: architect
+
+implement_crew_logic:
+  description: >
+    Analyze the design_crew_result:`{design_crew_result}`.
+    (If design_crew_result not available | `None`, load it from `output_{crew_name}/config/design_result.yaml`)
+    USING Per-agent/Per-task Tool Selections from previous task, implement `crew.py`:
+    
+    Use the default LLM configuration:
+    ```python
+    default_llm = LLM(model="gpt-4o-mini")
+    ```
+    
+    Implementation must include:
+    - @CrewBase class decorator
+    - @agent, @task, @crew method decorators 
+    - Agent configuration with tools from analyze_requirements
+    - Task sequence with dependencies
+    - tools should be initialized first and used in agent/task declarations
+    
+    Code must be executable and match CrewAI documentation examples.
+    Check the provided knowledge source for reference | CrewAI tools.
+    The agents and tasks yaml files are already existing in `output_{crew_name}/config` directory.
+  expected_output:
+    Python code that matches CrewAI best implementation patterns from documentation (your Knowledge source).
+    Return ONLY the Python code, no descriptions, comments, explanations or ``` wrappers.
+    DO NOT SAVE it anywhere.
+  agent: developer
+
+implement_support_files:
+  description: >
+    using the {design_crew_result} (If not available | `None`, load from `output_{crew_name}/config/design_result.yaml`),
+    and the previously created `crew.py` file,
+    CREATE and WRITE ON DISK project files in working directory: `output_{crew_name}`
+    
+    Required files:
+    1. main.py
+       - Environment setup 
+       - Crew initialization and execution. Ensure not to redefine the Crew class, it's already defined in `crew.py`
+       - saving the results
+       - Proper error handling
+    
+    2. Custom implementations (if needed from analyze_requirements task):
+       - tools/: Custom tool classes
+       - helpers/: Utility functions
+       - models/: Pydantic models for structured outputs
+    
+    3. Project files:
+       - crew_input.yaml: sample input data for the crew
+       - requirements.txt: list of pip dependencies
+       - .env.example: Required environment variables
+       - README.md: Setup and usage instructions
+       - docs/: Implementation details
+    
+    Rules:
+    - DO NOT create/edit agents.yaml and tasks.yaml
+    - Each file must be properly documented
+    - Follow Python best practices
+    - Create all required subdirectories
+    - Test file content before writing
+    - Verify writes and file permissions
+
+    Implementation steps:
+    1. Design file content ensuring it's executable
+    2. Create required directories
+    3. Write files with proper permissions
+    4. Verify written content
+    5. Report status per file
+
+  expected_output: >
+    A report confirming the FACTUAL creation of the following files and directories in WORKING DIRECTORY `output_{crew_name}`:
+    - main.py
+    - tools/ (if applicable)
+    - helpers/ (if applicable)
+    - models/ (if applicable)
+    - crew_input.yaml
+    - requirements.txt
+    - .env.example
+    - README.md
+    - docs/ (if applicable)
+    
+    The report should indicate the success or failure of each file/directory creation and list any errors encountered.
+  agent: developer
+
+
+review_implementation:
+  description: >
+    Review the complete implementation ensuring:
+    - Code quality and best practices
+    - Documentation completeness
+    - Requirements fulfillment 
+    - Integration correctness
+    Provide detailed feedback for improvements.
+    
+    Ensure that the created implementation is done according to the DesignCrew output: 
+    `output_{crew_name}/config/design_result.yaml`.
+    And according to the CrewAI docs (your Knowledge Source).
+    Working directory: `output_{crew_name}`
+  expected_output:
+    A comprehensive review report with specific improvement recommendations.
+    if any critical issues are found, list them under the header `ISSUES FOUND:`
+  agent: technical_lead
+
+implement_review_changes:
+  description: >
+    Implement review recommendations provided by technical_lead.
+    focus on the critical issues first (`ISSUES FOUND:`), then move to other recommendations.
+  expected_output: >
+    Code changes implementing review recommendations, working directory: `output_{crew_name}`
+    ONLY the code, no descriptions, comments or explanations, no ``` wrappers around the code.
+    Before writing ensure that the code is actually executable.
+  agent: developer
+
+implement_tests:
+  description: >
+    Create test suite:
+    - Unit tests for agents, tasks, tools, helpers
+    - Integration tests for crew workflow
+    - E2E tests for complete execution
+    - Test fixtures and utilities
+    Use pytest, include coverage reporting
+  expected_output: Complete test suite with coverage report
+  agent: qa_engineer
+
+execute_tests:
+  description: >
+    Run test suite:
+    - Configure test environment
+    - Execute unit, integration, E2E tests
+    - Generate coverage report
+    - Document failures and recommendations
+  expected_output: Test results with coverage metrics and recommendations
+  agent: qa_engineer
+
+
+
+
+verify_changes:
+  description: >
+    Verify implemented changes:
+    - Review code updates
+    - Run test suite
+    - Check documentation
+    - Assess remaining issues
+    - Recommend next steps
+  expected_output: Verification report with final recommendations
+  agent: technical_lead
