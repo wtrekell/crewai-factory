@@ -59,16 +59,23 @@ ANTHROPIC_API_KEY=YOUR_ANTHROPIC_API_KEY
 python main.py
 ```
 
+4. The output crew will be located in `output_*crew_name*` directory. Note that many tasks doesn't limit output to particular file, so the agents could hallucinate sometimes and write some unrequired files
+
 ## 📝 Input Format
 
-The `crew_input.yaml` file defines your desired CrewAI project:
+The `crew_input.yaml` file defines your desired CrewAI project.
 
+Example:
 ```yaml
-crew_name: example_crew
-crew_purpose: your crew's main objective
+crew_name: brainstorm_crew
+crew_purpose: brainstorm ideas of innovative projects utilising CrewAI framework
 crew_output: >
-  Detailed description of the expected output
-  format and requirements
+  table of ideas in `.md` file.
+  The list should contain at least 10 ideas. Each idea should be described in a few sentences.
+  Each idea should have:
+  1. technical complexity level
+  2. target market niche
+  3. innovation index
 ```
 
 ## 🎯 Model Selection
