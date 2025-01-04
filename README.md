@@ -1,4 +1,4 @@
-# CrewAI Builders Crew 🚀
+# CrewAI Factory Crew 🚀
 
 A powerful meta-CrewAI project that generates custom CrewAI implementations from simple YAML configurations. Transform
 your ideas into fully functional CrewAI projects with minimal effort!
@@ -8,7 +8,7 @@ your ideas into fully functional CrewAI projects with minimal effort!
 
 ## 🎯 Purpose
 
-CrewAI Builders Crew automates the creation of CrewAI projects by taking a high-level YAML description of your desired
+CrewAI Factory Crew automates the creation of CrewAI projects by taking a high-level YAML description of your desired
 crew and generating all necessary implementation files, including:
 
 - Crew logic and structure
