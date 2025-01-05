@@ -1,3 +1,0 @@
-*.py linguist-language=Python
-docs_creawai/* linguist-documentation
-*.mdx linguist-documentation
