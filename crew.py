@@ -215,7 +215,7 @@ class CodingCrew:
                 self.directorySearchTool,
                 search_tool
             ],
-            llm=gemini2think,
+            llm=gemini2,
             max_iter=2
         )
 
