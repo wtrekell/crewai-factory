@@ -126,6 +126,7 @@ cython_debug/
 # VS Code
 .vscode/
 
+.DS_Store
 output_*/
 db/
 crew_input_my.yaml
