@@ -130,7 +130,7 @@ implement_review_changes:
     Implement review recommendations provided by technical_lead.
     focus on the critical issues first (`ISSUES FOUND:`), then move to other recommendations.
   expected_output: >
-    Code changes implementing review recommendations, working directory: `output_{crew_name}`
+    Code changes implementing review recommendations, WORKING DIRECTORY STRICTLY: `output_{crew_name}`
     ONLY the code, no descriptions, comments or explanations, no ``` wrappers around the code.
     Before writing ensure that the code is actually executable.
   agent: developer

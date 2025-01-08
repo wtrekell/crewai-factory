@@ -1,0 +1,9 @@
+crew_name: brainstorm_crew
+crew_purpose: brainstorm ideas of innovative projects utilising CrewAI framework
+crew_output: >
+  table of ideas in `.md` file.
+  The list should contain at least 10 ideas. Each idea should be described in a few sentences.
+  Each idea should have:
+  1. technical complexity level
+  2. target market niche
+  3. estimated market size

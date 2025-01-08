@@ -1547,8 +1547,6 @@ Also, check out our YouTube video on how to use flows in CrewAI below!
 
 What is knowledge in CrewAI and how to use it.
 
-# Using Knowledge in CrewAI
-
 ## What is Knowledge?
 
 Knowledge in CrewAI is a powerful system that allows AI agents to access and utilize external information sources during their tasks.
@@ -1581,7 +1579,20 @@ CrewAI supports various types of knowledge sources out of the box:
   </Card>
 </CardGroup>
 
-## Quick Start
+## Supported Knowledge Parameters
+
+| Parameter         | Type                            | Required | Description                                                                                                                                       |
+| :---------------- | :------------------------------ | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sources`         | **List\[BaseKnowledgeSource]**  | Yes      | List of knowledge sources that provide content to be stored and queried. Can include PDF, CSV, Excel, JSON, text files, or string content.        |
+| `collection_name` | **str**                         | No       | Name of the collection where the knowledge will be stored. Used to identify different sets of knowledge. Defaults to "knowledge" if not provided. |
+| `storage`         | **Optional\[KnowledgeStorage]** | No       | Custom storage configuration for managing how the knowledge is stored and retrieved. If not provided, a default storage will be created.          |
+
+## Quickstart Example
+
+<Tip>
+  For file-Based Knowledge Sources, make sure to place your files in a `knowledge` directory at the root of your project.
+  Also, use relative paths from the `knowledge` directory when creating the source.
+</Tip>
 
 Here's an example using string-based knowledge:
 
@@ -1624,38 +1635,250 @@ crew = Crew(
 result = crew.kickoff(inputs={"question": "What city does John live in and how old is he?"})
 ```
 
+Here's another example with the `CrewDoclingSource`. The CrewDoclingSource is actually quite versatile and can handle multiple file formats including TXT, PDF, DOCX, HTML, and more.
+
+```python Code
+from crewai import LLM, Agent, Crew, Process, Task
+from crewai.knowledge.source.crew_docling_source import CrewDoclingSource
+
+# Create a knowledge source
+content_source = CrewDoclingSource(
+    file_paths=[
+        "https://lilianweng.github.io/posts/2024-11-28-reward-hacking",
+        "https://lilianweng.github.io/posts/2024-07-07-hallucination",
+    ],
+)
+
+# Create an LLM with a temperature of 0 to ensure deterministic outputs
+llm = LLM(model="gpt-4o-mini", temperature=0)
+
+# Create an agent with the knowledge store
+agent = Agent(
+    role="About papers",
+    goal="You know everything about the papers.",
+    backstory="""You are a master at understanding papers and their content.""",
+    verbose=True,
+    allow_delegation=False,
+    llm=llm,
+)
+task = Task(
+    description="Answer the following questions about the papers: {question}",
+    expected_output="An answer to the question.",
+    agent=agent,
+)
+
+crew = Crew(
+    agents=[agent],
+    tasks=[task],
+    verbose=True,
+    process=Process.sequential,
+    knowledge_sources=[
+        content_source
+    ],  # Enable knowledge by adding the sources here. You can also add more sources to the sources list.
+)
+
+result = crew.kickoff(
+    inputs={
+        "question": "What is the reward hacking paper about? Be sure to provide sources."
+    }
+)
+```
+
+## More Examples
+
+Here are examples of how to use different types of knowledge sources:
+
+### Text File Knowledge Source
+
+```python
+from crewai.knowledge.source import CrewDoclingSource
+
+# Create a text file knowledge source
+text_source = CrewDoclingSource(
+    file_paths=["document.txt", "another.txt"]
+)
+
+# Create knowledge with text file source
+knowledge = Knowledge(
+    collection_name="text_knowledge",
+    sources=[text_source]
+)
+```
+
+### PDF Knowledge Source
+
+```python
+from crewai.knowledge.source import PDFKnowledgeSource
+
+# Create a PDF knowledge source
+pdf_source = PDFKnowledgeSource(
+    file_paths=["document.pdf", "another.pdf"]
+)
+
+# Create knowledge with PDF source
+knowledge = Knowledge(
+    collection_name="pdf_knowledge",
+    sources=[pdf_source]
+)
+```
+
+### CSV Knowledge Source
+
+```python
+from crewai.knowledge.source import CSVKnowledgeSource
+
+# Create a CSV knowledge source
+csv_source = CSVKnowledgeSource(
+    file_paths=["data.csv"]
+)
+
+# Create knowledge with CSV source
+knowledge = Knowledge(
+    collection_name="csv_knowledge",
+    sources=[csv_source]
+)
+```
+
+### Excel Knowledge Source
+
+```python
+from crewai.knowledge.source import ExcelKnowledgeSource
+
+# Create an Excel knowledge source
+excel_source = ExcelKnowledgeSource(
+    file_paths=["spreadsheet.xlsx"]
+)
+
+# Create knowledge with Excel source
+knowledge = Knowledge(
+    collection_name="excel_knowledge",
+    sources=[excel_source]
+)
+```
+
+### JSON Knowledge Source
+
+```python
+from crewai.knowledge.source import JSONKnowledgeSource
+
+# Create a JSON knowledge source
+json_source = JSONKnowledgeSource(
+    file_paths=["data.json"]
+)
+
+# Create knowledge with JSON source
+knowledge = Knowledge(
+    collection_name="json_knowledge",
+    sources=[json_source]
+)
+```
+
 ## Knowledge Configuration
 
 ### Chunking Configuration
 
-Control how content is split for processing by setting the chunk size and overlap.
+Knowledge sources automatically chunk content for better processing.
+You can configure chunking behavior in your knowledge sources:
 
-```python Code
-knowledge_source = StringKnowledgeSource(
-    content="Long content...",
-    chunk_size=4000,     # Characters per chunk (default)
-    chunk_overlap=200    # Overlap between chunks (default)
+```python
+from crewai.knowledge.source import StringKnowledgeSource
+
+source = StringKnowledgeSource(
+    content="Your content here",
+    chunk_size=4000,      # Maximum size of each chunk (default: 4000)
+    chunk_overlap=200     # Overlap between chunks (default: 200)
 )
 ```
 
-## Embedder Configuration
+The chunking configuration helps in:
 
-You can also configure the embedder for the knowledge store. This is useful if you want to use a different embedder for the knowledge store than the one used for the agents.
+*   Breaking down large documents into manageable pieces
+*   Maintaining context through chunk overlap
+*   Optimizing retrieval accuracy
 
-```python Code
-...
-string_source = StringKnowledgeSource(
-    content="Users name is John. He is 30 years old and lives in San Francisco.",
-)
-crew = Crew(
-    ...
-    knowledge_sources=[string_source],
-    embedder={
-        "provider": "openai",
-        "config": {"model": "text-embedding-3-small"},
-    },
-)
-```
+### Embeddings Configuration
+
+You can also configure the embedder for the knowledge store.
+This is useful if you want to use a different embedder for the knowledge store than the one used for the agents.
+The `embedder` parameter supports various embedding model providers that include:
+
+*   `openai`: OpenAI's embedding models
+*   `google`: Google's text embedding models
+*   `azure`: Azure OpenAI embeddings
+*   `ollama`: Local embeddings with Ollama
+*   `vertexai`: Google Cloud VertexAI embeddings
+*   `cohere`: Cohere's embedding models
+*   `bedrock`: AWS Bedrock embeddings
+*   `huggingface`: Hugging Face models
+*   `watson`: IBM Watson embeddings
+
+Here's an example of how to configure the embedder for the knowledge store using Google's `text-embedding-004` model:
+
+<CodeGroup>
+  ```python Example
+  from crewai import Agent, Task, Crew, Process, LLM
+  from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSource
+  import os
+
+  # Get the GEMINI API key
+  GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
+  # Create a knowledge source
+  content = "Users name is John. He is 30 years old and lives in San Francisco."
+  string_source = StringKnowledgeSource(
+      content=content,
+  )
+
+  # Create an LLM with a temperature of 0 to ensure deterministic outputs
+  gemini_llm = LLM(
+      model="gemini/gemini-1.5-pro-002",
+      api_key=GEMINI_API_KEY,
+      temperature=0,
+  )
+
+  # Create an agent with the knowledge store
+  agent = Agent(
+      role="About User",
+      goal="You know everything about the user.",
+      backstory="""You are a master at understanding people and their preferences.""",
+      verbose=True,
+      allow_delegation=False,
+      llm=gemini_llm,
+  )
+
+  task = Task(
+      description="Answer the following questions about the user: {question}",
+      expected_output="An answer to the question.",
+      agent=agent,
+  )
+
+  crew = Crew(
+      agents=[agent],
+      tasks=[task],
+      verbose=True,
+      process=Process.sequential,
+      knowledge_sources=[string_source],
+      embedder={
+          "provider": "google",
+          "config": {
+              "model": "models/text-embedding-004",
+              "api_key": GEMINI_API_KEY,
+          }
+      }
+  )
+
+  result = crew.kickoff(inputs={"question": "What city does John live in and how old is he?"})
+  ```
+
+  ```text Output
+  # Agent: About User
+  ## Task: Answer the following questions about the user: What city does John live in and how old is he?
+
+  # Agent: About User
+  ## Final Answer: 
+  John is 30 years old and lives in San Francisco.
+  ```
+</CodeGroup>
 
 ## Clearing Knowledge
 
@@ -1666,6 +1889,59 @@ crewai reset-memories --knowledge
 ```
 
 This is useful when you've updated your knowledge sources and want to ensure that the agents are using the most recent information.
+
+## Agent-Specific Knowledge
+
+While knowledge can be provided at the crew level using `crew.knowledge_sources`, individual agents can also have their own knowledge sources using the `knowledge_sources` parameter:
+
+```python Code
+from crewai import Agent, Task, Crew
+from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSource
+
+# Create agent-specific knowledge about a product
+product_specs = StringKnowledgeSource(
+    content="""The XPS 13 laptop features:
+    - 13.4-inch 4K display
+    - Intel Core i7 processor
+    - 16GB RAM
+    - 512GB SSD storage
+    - 12-hour battery life""",
+    metadata={"category": "product_specs"}
+)
+
+# Create a support agent with product knowledge
+support_agent = Agent(
+    role="Technical Support Specialist",
+    goal="Provide accurate product information and support.",
+    backstory="You are an expert on our laptop products and specifications.",
+    knowledge_sources=[product_specs]  # Agent-specific knowledge
+)
+
+# Create a task that requires product knowledge
+support_task = Task(
+    description="Answer this customer question: {question}",
+    agent=support_agent
+)
+
+# Create and run the crew
+crew = Crew(
+    agents=[support_agent],
+    tasks=[support_task]
+)
+
+# Get answer about the laptop's specifications
+result = crew.kickoff(
+    inputs={"question": "What is the storage capacity of the XPS 13?"}
+)
+```
+
+<Info>
+  Benefits of agent-specific knowledge:
+
+  *   Give agents specialized information for their roles
+  *   Maintain separation of concerns between agents
+  *   Combine with crew-level knowledge for layered information access
+</Info>
 
 ## Custom Knowledge Sources
 
@@ -2026,7 +2302,7 @@ Large Language Models (LLMs) are the core intelligence behind CrewAI agents. The
 
 ## Available Models and Their Capabilities
 
-Here's a detailed breakdown of supported models and their capabilities, you can compare performance at [lmarena.ai](https://lmarena.ai/):
+Here's a detailed breakdown of supported models and their capabilities, you can compare performance at [lmarena.ai](https://lmarena.ai/?leaderboard) and [artificialanalysis.ai](https://artificialanalysis.ai/):
 
 <Tabs>
   <Tab title="OpenAI">
@@ -2118,14 +2394,20 @@ Here's a detailed breakdown of supported models and their capabilities, you can 
   </Tab>
 
   <Tab title="Gemini">
-    | Model               | Context Window | Best For                                                                                                         |
-    | ------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- |
-    | Gemini 1.5 Flash    | 1M tokens      | Balanced multimodal model, good for most tasks                                                                   |
-    | Gemini 1.5 Flash 8B | 1M tokens      | Fastest, most cost-efficient, good for high-frequency tasks                                                      |
-    | Gemini 1.5 Pro      | 2M tokens      | Best performing, wide variety of reasoning tasks including logical reasoning, coding, and creative collaboration |
+    | Model                | Context Window | Best For                                                                                                         |
+    | -------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------- |
+    | gemini-2.0-flash-exp | 1M tokens      | Higher quality at faster speed, multimodal model, good for most tasks                                            |
+    | gemini-1.5-flash     | 1M tokens      | Balanced multimodal model, good for most tasks                                                                   |
+    | gemini-1.5-flash-8B  | 1M tokens      | Fastest, most cost-efficient, good for high-frequency tasks                                                      |
+    | gemini-1.5-pro       | 2M tokens      | Best performing, wide variety of reasoning tasks including logical reasoning, coding, and creative collaboration |
 
     <Tip>
       Google's Gemini models are all multimodal, supporting audio, images, video and text, supporting context caching, json schema, function calling, etc.
+
+      These models are available via API\_KEY from
+      [The Gemini API](https://ai.google.dev/gemini-api/docs) and also from
+      [Google Cloud Vertex](https://cloud.google.com/vertex-ai/generative-ai/docs/migrate/migrate-google-ai) as part of the
+      [Model Garden](https://cloud.google.com/vertex-ai/generative-ai/docs/model-garden/explore-models).
     </Tip>
   </Tab>
 
@@ -2135,7 +2417,6 @@ Here's a detailed breakdown of supported models and their capabilities, you can 
     | Llama 3.1 70B/8B | 131,072 tokens | High-performance, large context tasks |
     | Llama 3.2 Series | 8,192 tokens   | General-purpose tasks                 |
     | Mixtral 8x7B     | 32,768 tokens  | Balanced performance and context      |
-    | Gemma Series     | 8,192 tokens   | Efficient, smaller-scale tasks        |
 
     <Tip>
       Groq is known for its fast inference speeds, making it suitable for real-time applications.
@@ -2147,7 +2428,7 @@ Here's a detailed breakdown of supported models and their capabilities, you can 
     | ------------- | ----------------- | ------------------------------------ |
     | Deepseek Chat | 128,000 tokens    | Specialized in technical discussions |
     | Claude 3      | Up to 200K tokens | Strong reasoning, code understanding |
-    | Gemini        | Varies by model   | Multimodal capabilities              |
+    | Gemma Series  | 8,192 tokens      | Efficient, smaller-scale tasks       |
 
     <Info>
       Provider selection should consider factors like:
@@ -3581,9 +3862,152 @@ analysis_task = Task(
 )
 ```
 
-## Getting Structured Consistent Outputs from Tasks
+## Task Guardrails
 
-When you need to ensure that a task outputs a structured and consistent format, you can use the `output_pydantic` or `output_json` properties on a task. These properties allow you to define the expected output structure, making it easier to parse and utilize the results in your application.
+Task guardrails provide a way to validate and transform task outputs before they
+are passed to the next task. This feature helps ensure data quality and provides
+efeedback to agents when their output doesn't meet specific criteria.
+
+### Using Task Guardrails
+
+To add a guardrail to a task, provide a validation function through the `guardrail` parameter:
+
+```python Code
+from typing import Tuple, Union, Dict, Any
+
+def validate_blog_content(result: str) -> Tuple[bool, Union[Dict[str, Any], str]]:
+    """Validate blog content meets requirements."""
+    try:
+        # Check word count
+        word_count = len(result.split())
+        if word_count > 200:
+            return (False, {
+                "error": "Blog content exceeds 200 words",
+                "code": "WORD_COUNT_ERROR",
+                "context": {"word_count": word_count}
+            })
+
+        # Additional validation logic here
+        return (True, result.strip())
+    except Exception as e:
+        return (False, {
+            "error": "Unexpected error during validation",
+            "code": "SYSTEM_ERROR"
+        })
+
+blog_task = Task(
+    description="Write a blog post about AI",
+    expected_output="A blog post under 200 words",
+    agent=blog_agent,
+    guardrail=validate_blog_content  # Add the guardrail function
+)
+```
+
+### Guardrail Function Requirements
+
+1.  **Function Signature**:
+    *   Must accept exactly one parameter (the task output)
+    *   Should return a tuple of `(bool, Any)`
+    *   Type hints are recommended but optional
+
+2.  **Return Values**:
+    *   Success: Return `(True, validated_result)`
+    *   Failure: Return `(False, error_details)`
+
+### Error Handling Best Practices
+
+1.  **Structured Error Responses**:
+
+```python Code
+def validate_with_context(result: str) -> Tuple[bool, Union[Dict[str, Any], str]]:
+    try:
+        # Main validation logic
+        validated_data = perform_validation(result)
+        return (True, validated_data)
+    except ValidationError as e:
+        return (False, {
+            "error": str(e),
+            "code": "VALIDATION_ERROR",
+            "context": {"input": result}
+        })
+    except Exception as e:
+        return (False, {
+            "error": "Unexpected error",
+            "code": "SYSTEM_ERROR"
+        })
+```
+
+2.  **Error Categories**:
+    *   Use specific error codes
+    *   Include relevant context
+    *   Provide actionable feedback
+
+3.  **Validation Chain**:
+
+```python Code
+from typing import Any, Dict, List, Tuple, Union
+
+def complex_validation(result: str) -> Tuple[bool, Union[str, Dict[str, Any]]]:
+    """Chain multiple validation steps."""
+    # Step 1: Basic validation
+    if not result:
+        return (False, {"error": "Empty result", "code": "EMPTY_INPUT"})
+
+    # Step 2: Content validation
+    try:
+        validated = validate_content(result)
+        if not validated:
+            return (False, {"error": "Invalid content", "code": "CONTENT_ERROR"})
+
+        # Step 3: Format validation
+        formatted = format_output(validated)
+        return (True, formatted)
+    except Exception as e:
+        return (False, {
+            "error": str(e),
+            "code": "VALIDATION_ERROR",
+            "context": {"step": "content_validation"}
+        })
+```
+
+### Handling Guardrail Results
+
+When a guardrail returns `(False, error)`:
+
+1.  The error is sent back to the agent
+2.  The agent attempts to fix the issue
+3.  The process repeats until:
+    *   The guardrail returns `(True, result)`
+    *   Maximum retries are reached
+
+Example with retry handling:
+
+```python Code
+from typing import Optional, Tuple, Union
+
+def validate_json_output(result: str) -> Tuple[bool, Union[Dict[str, Any], str]]:
+    """Validate and parse JSON output."""
+    try:
+        # Try to parse as JSON
+        data = json.loads(result)
+        return (True, data)
+    except json.JSONDecodeError as e:
+        return (False, {
+            "error": "Invalid JSON format",
+            "code": "JSON_ERROR",
+            "context": {"line": e.lineno, "column": e.colno}
+        })
+
+task = Task(
+    description="Generate a JSON report",
+    expected_output="A valid JSON object",
+    agent=analyst,
+    guardrail=validate_json_output,
+    max_retries=3  # Limit retry attempts
+)
+```
+
+## Getting Structured Consistent Outputs from Tasks
 
 <Note>
   It's also important to note that the output of the final task of a crew becomes the final output of the actual crew itself.
@@ -3932,6 +4356,119 @@ While creating and executing tasks, certain validation mechanisms are in place t
 *   Preventing the manual assignment of the `id` attribute to uphold the integrity of the unique identifier system.
 
 These validations help in maintaining the consistency and reliability of task executions within the crewAI framework.
+
+## Task Guardrails
+
+Task guardrails provide a powerful way to validate, transform, or filter task outputs before they are passed to the next task. Guardrails are optional functions that execute before the next task starts, allowing you to ensure that task outputs meet specific requirements or formats.
+
+### Basic Usage
+
+```python Code
+from typing import Tuple, Union
+from crewai import Task
+
+def validate_json_output(result: str) -> Tuple[bool, Union[dict, str]]:
+    """Validate that the output is valid JSON."""
+    try:
+        json_data = json.loads(result)
+        return (True, json_data)
+    except json.JSONDecodeError:
+        return (False, "Output must be valid JSON")
+
+task = Task(
+    description="Generate JSON data",
+    expected_output="Valid JSON object",
+    guardrail=validate_json_output
+)
+```
+
+### How Guardrails Work
+
+1.  **Optional Attribute**: Guardrails are an optional attribute at the task level, allowing you to add validation only where needed.
+2.  **Execution Timing**: The guardrail function is executed before the next task starts, ensuring valid data flow between tasks.
+3.  **Return Format**: Guardrails must return a tuple of `(success, data)`:
+    *   If `success` is `True`, `data` is the validated/transformed result
+    *   If `success` is `False`, `data` is the error message
+4.  **Result Routing**:
+    *   On success (`True`), the result is automatically passed to the next task
+    *   On failure (`False`), the error is sent back to the agent to generate a new answer
+
+### Common Use Cases
+
+#### Data Format Validation
+
+```python Code
+def validate_email_format(result: str) -> Tuple[bool, Union[str, str]]:
+    """Ensure the output contains a valid email address."""
+    import re
+    email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    if re.match(email_pattern, result.strip()):
+        return (True, result.strip())
+    return (False, "Output must be a valid email address")
+```
+
+#### Content Filtering
+
+```python Code
+def filter_sensitive_info(result: str) -> Tuple[bool, Union[str, str]]:
+    """Remove or validate sensitive information."""
+    sensitive_patterns = ['SSN:', 'password:', 'secret:']
+    for pattern in sensitive_patterns:
+        if pattern.lower() in result.lower():
+            return (False, f"Output contains sensitive information ({pattern})")
+    return (True, result)
+```
+
+#### Data Transformation
+
+```python Code
+def normalize_phone_number(result: str) -> Tuple[bool, Union[str, str]]:
+    """Ensure phone numbers are in a consistent format."""
+    import re
+    digits = re.sub(r'\D', '', result)
+    if len(digits) == 10:
+        formatted = f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+        return (True, formatted)
+    return (False, "Output must be a 10-digit phone number")
+```
+
+### Advanced Features
+
+#### Chaining Multiple Validations
+
+```python Code
+def chain_validations(*validators):
+    """Chain multiple validators together."""
+    def combined_validator(result):
+        for validator in validators:
+            success, data = validator(result)
+            if not success:
+                return (False, data)
+            result = data
+        return (True, result)
+    return combined_validator
+
+# Usage
+task = Task(
+    description="Get user contact info",
+    expected_output="Email and phone",
+    guardrail=chain_validations(
+        validate_email_format,
+        filter_sensitive_info
+    )
+)
+```
+
+#### Custom Retry Logic
+
+```python Code
+task = Task(
+    description="Generate data",
+    expected_output="Valid data",
+    guardrail=validate_data,
+    max_retries=5  # Override default retry limit
+)
+```
 
 ## Creating Directories when Saving Files
 
@@ -5814,6 +6351,210 @@ This setup enables you to track hyperparameters and monitor for performance issu
 </Steps>
 
 
+# Portkey Observability and Guardrails
+
+How to use Portkey with CrewAI
+
+<img src="https://raw.githubusercontent.com/siddharthsambharia-portkey/Portkey-Product-Images/main/Portkey-CrewAI.png" alt="Portkey CrewAI Header Image" width="70%" />
+
+[Portkey](https://portkey.ai/?utm_source=crewai\&utm_medium=crewai\&utm_campaign=crewai) is a 2-line upgrade to make your CrewAI agents reliable, cost-efficient, and fast.
+
+Portkey adds 4 core production capabilities to any CrewAI agent:
+
+1.  Routing to **200+ LLMs**
+2.  Making each LLM call more robust
+3.  Full-stack tracing & cost, performance analytics
+4.  Real-time guardrails to enforce behavior
+
+## Getting Started
+
+<Steps>
+  <Step title="Install CrewAI and Portkey">
+    ```bash
+    pip install -qU crewai portkey-ai
+    ```
+  </Step>
+
+  <Step title="Configure the LLM Client">
+    To build CrewAI Agents with Portkey, you'll need two keys:
+
+    *   **Portkey API Key**: Sign up on the [Portkey app](https://app.portkey.ai/?utm_source=crewai\&utm_medium=crewai\&utm_campaign=crewai) and copy your API key
+    *   **Virtual Key**: Virtual Keys securely manage your LLM API keys in one place. Store your LLM provider API keys securely in Portkey's vault
+
+    ```python
+    from crewai import LLM
+    from portkey_ai import createHeaders, PORTKEY_GATEWAY_URL
+
+    gpt_llm = LLM(
+        model="gpt-4",
+        base_url=PORTKEY_GATEWAY_URL,
+        api_key="dummy", # We are using Virtual key
+        extra_headers=createHeaders(
+            api_key="YOUR_PORTKEY_API_KEY",
+            virtual_key="YOUR_VIRTUAL_KEY", # Enter your Virtual key from Portkey
+        )
+    )
+    ```
+  </Step>
+
+  <Step title="Create and Run Your First Agent">
+    ```python
+    from crewai import Agent, Task, Crew
+
+    # Define your agents with roles and goals
+    coder = Agent(
+        role='Software developer',
+        goal='Write clear, concise code on demand',
+        backstory='An expert coder with a keen eye for software trends.',
+        llm=gpt_llm
+    )
+
+    # Create tasks for your agents
+    task1 = Task(
+        description="Define the HTML for making a simple website with heading- Hello World! Portkey is working!",
+        expected_output="A clear and concise HTML code",
+        agent=coder
+    )
+
+    # Instantiate your crew
+    crew = Crew(
+        agents=[coder],
+        tasks=[task1],
+    )
+
+    result = crew.kickoff()
+    print(result)
+    ```
+  </Step>
+</Steps>
+
+## Key Features
+
+| Feature                    | Description                                                                             |
+| :------------------------- | :-------------------------------------------------------------------------------------- |
+| 🌐 Multi-LLM Support       | Access OpenAI, Anthropic, Gemini, Azure, and 250+ providers through a unified interface |
+| 🛡️ Production Reliability | Implement retries, timeouts, load balancing, and fallbacks                              |
+| 📊 Advanced Observability  | Track 40+ metrics including costs, tokens, latency, and custom metadata                 |
+| 🔍 Comprehensive Logging   | Debug with detailed execution traces and function call logs                             |
+| 🚧 Security Controls       | Set budget limits and implement role-based access control                               |
+| 🔄 Performance Analytics   | Capture and analyze feedback for continuous improvement                                 |
+| 💾 Intelligent Caching     | Reduce costs and latency with semantic or simple caching                                |
+
+## Production Features with Portkey Configs
+
+All features mentioned below are through Portkey's Config system. Portkey's Config system allows you to define routing strategies using simple JSON objects in your LLM API calls. You can create and manage Configs directly in your code or through the Portkey Dashboard. Each Config has a unique ID for easy reference.
+
+<Frame>
+  <img src="https://raw.githubusercontent.com/Portkey-AI/docs-core/refs/heads/main/images/libraries/libraries-3.avif" />
+</Frame>
+
+### 1. Use 250+ LLMs
+
+Access various LLMs like Anthropic, Gemini, Mistral, Azure OpenAI, and more with minimal code changes. Switch between providers or use them together seamlessly. [Learn more about Universal API](https://portkey.ai/docs/product/ai-gateway/universal-api)
+
+Easily switch between different LLM providers:
+
+```python
+# Anthropic Configuration
+anthropic_llm = LLM(
+    model="claude-3-5-sonnet-latest",
+    base_url=PORTKEY_GATEWAY_URL,
+    api_key="dummy",
+    extra_headers=createHeaders(
+        api_key="YOUR_PORTKEY_API_KEY",
+        virtual_key="YOUR_ANTHROPIC_VIRTUAL_KEY", #You don't need provider when using Virtual keys
+        trace_id="anthropic_agent"
+    )
+)
+
+# Azure OpenAI Configuration
+azure_llm = LLM(
+    model="gpt-4",
+    base_url=PORTKEY_GATEWAY_URL,
+    api_key="dummy",
+    extra_headers=createHeaders(
+        api_key="YOUR_PORTKEY_API_KEY",
+        virtual_key="YOUR_AZURE_VIRTUAL_KEY", #You don't need provider when using Virtual keys
+        trace_id="azure_agent"
+    )
+)
+```
+
+### 2. Caching
+
+Improve response times and reduce costs with two powerful caching modes:
+
+*   **Simple Cache**: Perfect for exact matches
+*   **Semantic Cache**: Matches responses for requests that are semantically similar
+    [Learn more about Caching](https://portkey.ai/docs/product/ai-gateway/cache-simple-and-semantic)
+
+```py
+config = {
+    "cache": {
+        "mode": "semantic",  # or "simple" for exact matching
+    }
+}
+```
+
+### 3. Production Reliability
+
+Portkey provides comprehensive reliability features:
+
+*   **Automatic Retries**: Handle temporary failures gracefully
+*   **Request Timeouts**: Prevent hanging operations
+*   **Conditional Routing**: Route requests based on specific conditions
+*   **Fallbacks**: Set up automatic provider failovers
+*   **Load Balancing**: Distribute requests efficiently
+
+[Learn more about Reliability Features](https://portkey.ai/docs/product/ai-gateway/)
+
+### 4. Metrics
+
+Agent runs are complex. Portkey automatically logs **40+ comprehensive metrics** for your AI agents, including cost, tokens used, latency, etc. Whether you need a broad overview or granular insights into your agent runs, Portkey's customizable filters provide the metrics you need.
+
+*   Cost per agent interaction
+*   Response times and latency
+*   Token usage and efficiency
+*   Success/failure rates
+*   Cache hit rates
+
+<img src="https://github.com/siddharthsambharia-portkey/Portkey-Product-Images/blob/main/Portkey-Dashboard.png?raw=true" width="70%" alt="Portkey Dashboard" />
+
+### 5. Detailed Logging
+
+Logs are essential for understanding agent behavior, diagnosing issues, and improving performance. They provide a detailed record of agent activities and tool use, which is crucial for debugging and optimizing processes.
+
+Access a dedicated section to view records of agent executions, including parameters, outcomes, function calls, and errors. Filter logs based on multiple parameters such as trace ID, model, tokens used, and metadata.
+
+<details>
+  <summary><b>Traces</b></summary>
+
+  <img src="https://raw.githubusercontent.com/siddharthsambharia-portkey/Portkey-Product-Images/main/Portkey-Traces.png" alt="Portkey Traces" width="70%" />
+</details>
+
+<details>
+  <summary><b>Logs</b></summary>
+
+  <img src="https://raw.githubusercontent.com/siddharthsambharia-portkey/Portkey-Product-Images/main/Portkey-Logs.png" alt="Portkey Logs" width="70%" />
+</details>
+
+### 6. Enterprise Security Features
+
+*   Set budget limit and rate limts per Virtual Key (disposable API keys)
+*   Implement role-based access control
+*   Track system changes with audit logs
+*   Configure data retention policies
+
+For detailed information on creating and managing Configs, visit the [Portkey documentation](https://docs.portkey.ai/product/ai-gateway/configs).
+
+## Resources
+
+*   [📘 Portkey Documentation](https://docs.portkey.ai)
+*   [📊 Portkey Dashboard](https://app.portkey.ai/?utm_source=crewai\&utm_medium=crewai\&utm_campaign=crewai)
+*   [🐦 Twitter](https://twitter.com/portkeyai)
+*   [💬 Discord Community](https://discord.gg/DD7vgKK299)
+
+
 # Replay Tasks from Latest Crew Kickoff
 
 Replay tasks from the latest crew.kickoff(...)
@@ -6030,7 +6771,7 @@ Get started with CrewAI - Install, configure, and build your first AI crew
 <Note>
   **Python Version Requirements**
 
-  CrewAI requires `Python >=3.10 and <=3.12`. Here's how to check your version:
+  CrewAI requires `Python >=3.10 and <3.13`. Here's how to check your version:
 
   ```bash
   python3 --version

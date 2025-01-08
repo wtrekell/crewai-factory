@@ -1,15 +1,16 @@
+import os
+
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 
 # might need global `magic` installed: brew install magic
-from crewai.knowledge.source.string_knowledge_source import StringKnowledgeSource
+from crewai.knowledge.source.text_file_knowledge_source import TextFileKnowledgeSource
 from crewai import LLM
 
 from crewai_tools import (SerperDevTool, WebsiteSearchTool, FileReadTool,
                           CodeInterpreterTool, FileWriterTool, ScrapeWebsiteTool,
                           DirectorySearchTool)
 
-from crewai_tools import DirectoryReadTool, FileReadTool
 from crewai_tools.tools.code_docs_search_tool.code_docs_search_tool import CodeDocsSearchTool
 
 from helpers.get_docs_string import LocalTxTFileKnowledgeSource
@@ -29,6 +30,10 @@ playwright_tool = PlaywrightTool()
 scrape_website_tool = ScrapeWebsiteTool()
 docsSearchTool = DirectorySearchTool(directory='./docs_crewai')
 docsSearchRagTool = CodeDocsSearchTool(docs_url='https://docs.crewai.com')
+
+docs_singlefile = TextFileKnowledgeSource(
+    file_paths=["singlefile.txt"]
+)
 
 gpt4o_mini = LLM(
     model="gpt-4o-mini",
@@ -174,11 +179,7 @@ class DesignCrew:
             process=Process.sequential,
             # memory=True,
             verbose=True,
-            knowledge_sources=[
-                LocalTxTFileKnowledgeSource(
-                    file_path="docs_crewai/singlefile.txt",
-                ),
-            ]
+            knowledge_sources=[docs_singlefile],
         )
 
 
@@ -337,9 +338,12 @@ class CodingCrew:
             process=Process.sequential,
             # memory=True,
             verbose=True,
-            knowledge_sources=[
-                LocalTxTFileKnowledgeSource(
-                    file_path="docs_crewai/singlefile.txt",
-                )
-            ]
+            knowledge_sources=[docs_singlefile],
+            embedder={
+                "provider": "google",
+                "config": {
+                    "model": "models/text-embedding-004",
+                    "api_key": os.environ.get("GEMINI_API_KEY"),
+                }
+            }
         )
