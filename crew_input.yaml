@@ -1,5 +1,5 @@
-crew_name: brainstorm_crew
-crew_purpose: brainstorm ideas of innovative projects utilising CrewAI framework
+crew_name: brand editorial team
+crew_purpose: analyze materials provided by the user and ghost write on-brand content for the user to finish 
 crew_output: >
   table of ideas in `.md` file.
   The list should contain at least 10 ideas. Each idea should be described in a few sentences.
@@ -7,3 +7,11 @@ crew_output: >
   1. technical complexity level
   2. target market niche
   3. estimated market size
+variable_name: "project_theme"
+variable: "educational_focus"
+target_market_niche: user experience design and artificial intelligence
+user_demographics: tech-savvy professionals aged 25-45
+technical_complexity_level: medium
+estimated_market_size: $500M-1B
+innovation_focus: AI-powered user experience optimization
+idea_format_preference: structured yaml format

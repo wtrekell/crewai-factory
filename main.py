@@ -38,14 +38,17 @@ class CrewFactoryCrew:
             result = design_crew.kickoff(crew_input)
             self.save_result(result, 'design_crew')
 
-            # result = None
-            # print(result.raw)
-            crew_input['design_crew_result'] = result.raw if result else None
-
-            coding_crew = CodingCrew(crew_input.get('crew_name')).crew()
-            result = coding_crew.kickoff(crew_input)
-            self.save_result(result, 'coding_crew')
+            # Temporarily disable CodingCrew to avoid API rate limits
+            print(f"\n✅ Design Crew completed successfully!")
+            print(f"📁 Results saved to: design_crew_results.md")
             return result
+
+            # TODO: Re-enable after fixing rate limiting
+            # crew_input['design_crew_result'] = result.raw if result else None
+            # coding_crew = CodingCrew(crew_input.get('crew_name')).crew()
+            # result = coding_crew.kickoff(crew_input)
+            # self.save_result(result, 'coding_crew')
+            # return result
 
         except Exception as e:
             logging.error(f"Unexpected error occurred: {e}")

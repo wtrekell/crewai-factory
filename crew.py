@@ -7,18 +7,101 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.knowledge.source.text_file_knowledge_source import TextFileKnowledgeSource
 from crewai import LLM
 
-from crewai_tools import (SerperDevTool, WebsiteSearchTool, FileReadTool,
-                          CodeInterpreterTool, FileWriterTool, ScrapeWebsiteTool,
-                          DirectorySearchTool)
+# Temporary replacement for missing crewai_tools
+from crewai.tools import BaseTool
+from typing import Any
+from pydantic import Field
+import os
+import json
 
-from crewai_tools.tools.code_docs_search_tool.code_docs_search_tool import CodeDocsSearchTool
+class FileReadTool(BaseTool):
+    name: str = "File Reader"
+    description: str = "Reads content from a file"
+    
+    def _run(self, file_path: str) -> str:
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+
+class FileWriterTool(BaseTool):
+    name: str = "File Writer"
+    description: str = "Writes content to a file"
+    
+    def _run(self, file_path: str, content: str) -> str:
+        try:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            return f"Successfully wrote to {file_path}"
+        except Exception as e:
+            return f"Error writing file: {str(e)}"
+
+class DirectorySearchTool(BaseTool):
+    name: str = "Directory Search"
+    description: str = "Searches for files in a directory"
+    directory: str = Field(default=".", description="Directory to search in")
+    
+    def _run(self, query: str = "") -> str:
+        try:
+            files = []
+            for root, dirs, filenames in os.walk(self.directory):
+                for filename in filenames:
+                    if query.lower() in filename.lower():
+                        files.append(os.path.join(root, filename))
+            return "\n".join(files) if files else "No files found"
+        except Exception as e:
+            return f"Error searching directory: {str(e)}"
+
+class SerperDevTool(BaseTool):
+    name: str = "Search Tool"
+    description: str = "Simple search tool placeholder"
+    
+    def _run(self, query: str) -> str:
+        return f"Search results for: {query} (placeholder - configure with real search API)"
+
+class WebsiteSearchTool(BaseTool):
+    name: str = "Website Search"
+    description: str = "Website search tool placeholder"
+    
+    def _run(self, url: str) -> str:
+        return f"Website search for: {url} (placeholder - configure with real web scraping)"
+
+class ScrapeWebsiteTool(BaseTool):
+    name: str = "Website Scraper"
+    description: str = "Website scraping tool placeholder"
+    
+    def _run(self, url: str) -> str:
+        return f"Scraped content from: {url} (placeholder - configure with real web scraping)"
+
+class CodeInterpreterTool(BaseTool):
+    name: str = "Code Interpreter"
+    description: str = "Code execution tool placeholder"
+    
+    def _run(self, code: str) -> str:
+        return f"Code execution result: (placeholder - configure with real code execution)"
+
+class CodeDocsSearchTool(BaseTool):
+    name: str = "Code Docs Search"
+    description: str = "Searches code documentation"
+    docs_url: str = Field(default="", description="Documentation URL to search")
+    
+    def _run(self, query: str) -> str:
+        return f"Code docs search for: {query} at {self.docs_url} (placeholder - configure with real docs search)"
 
 from helpers.get_docs_string import LocalTxTFileKnowledgeSource
 from helpers.helper import validate_and_save_yaml_from_pydantic_list, write_review_changes_callback
 from models import TasksModel, AgentsModel
 from tools.files_langchain import FileManagementTool
 from tools.shell_tool import ShellCommandTool
-from tools.playwright_tool import PlaywrightTool
+# Placeholder for PlaywrightTool - install playwright if needed
+class PlaywrightTool(BaseTool):
+    name: str = "Playwright Browser"
+    description: str = "Browser automation tool placeholder"
+    
+    def _run(self, command: str) -> str:
+        return f"Browser automation: {command} (placeholder - install playwright to use)"
 
 shell_tool = ShellCommandTool()
 file_read_tool = FileReadTool()
@@ -36,27 +119,27 @@ docs_singlefile = TextFileKnowledgeSource(
 )
 
 gpt4o_mini = LLM(
-    model="gpt-4o-mini",
+    model="gpt-4.1-mini-2025-04-14",
 )
 gpt4o = LLM(
-    model="gpt-4o",
+    model="gpt-4.1-mini-2025-04-14",
 )
 gpt1o_mini = LLM(
-    model="o1-mini-2024-09-12",
+    model="gpt-4.1-mini-2025-04-14",
 )
 gpt1o = LLM(
-    model="o1-preview",
+    model="gpt-4.1-mini-2025-04-14",
 )
 gemini2 = LLM(
-    model="gemini/gemini-2.0-flash-exp",
+    model="gemini/gemini-2.5-pro",
     # temperature=0.7,
 )
 gemini2think = LLM(
-    model="gemini/gemini-2.0-flash-thinking-exp-1219",
+    model="gemini/gemini-2.5-pro",
     # temperature=0.7,
 )
 claude = LLM(
-    model="anthropic/claude-3-5-sonnet-20241022",
+    model="anthropic/claude-sonnet-4-20250514",
 )
 
 
@@ -80,8 +163,8 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool, file_read_tool, file_write_tool],
             allow_delegation=False,
             verbose=True,
-            llm=gpt1o_mini,
-            max_iter=3,
+            llm=gpt4o_mini,
+            max_iter=1,
         )
         return content_designer
 
@@ -92,8 +175,8 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool, file_read_tool, file_write_tool],
             allow_delegation=False,
             verbose=True,
-            llm=gemini2,
-            max_iter=3,
+            llm=gpt4o_mini,
+            max_iter=1,
         )
         return content_designer
 
@@ -103,8 +186,8 @@ class DesignCrew:
             config=self.agents_config['qa_expert'],
             tools=[search_tool, web_rag_tool, file_write_tool],
             verbose=True,
-            llm=claude,
-            max_iter=3
+            llm=gpt4o_mini,
+            max_iter=1
         )
 
     @task
@@ -172,9 +255,10 @@ class DesignCrew:
                 self.design_crew_input(),
                 self.design_tasks(),
                 self.design_agents(),
-                self.review_tasks_and_agents(),
-                self.prepare_review_changes(),
-                self.write_review_changes(),
+                # Temporarily removed review tasks to reduce API calls
+                # self.review_tasks_and_agents(),
+                # self.prepare_review_changes(),
+                # self.write_review_changes(),
             ],
             process=Process.sequential,
             # memory=True,
@@ -201,7 +285,7 @@ class CodingCrew:
         return Agent(
             config=self.agents_config['architect'],
             tools=[search_tool, file_read_tool, web_rag_tool],
-            llm=gpt1o_mini,
+            llm=gpt4o_mini,
             max_iter=3
         )
 
@@ -243,7 +327,7 @@ class CodingCrew:
                 code_interpreter_tool,
                 shell_tool
             ],
-            llm=gpt1o_mini,
+            llm=gpt4o_mini,
             max_iter=3
         )
 
