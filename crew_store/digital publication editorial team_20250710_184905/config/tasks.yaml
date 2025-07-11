@@ -1,0 +1,40 @@
+select_key_input_variables:
+  description: >-
+    Identify the 1-3 most relevant input variables from the crew's design input that
+    will guide the article creation process. These variables must be explicitly referenced
+    in task outputs to ensure alignment with the article objectives.
+  expected_output: >-
+    A clear selection of 1-3 input variables from {raw_materials}, {brand_guidelines},
+    and {target_audience} that are referenced consistently in subsequent article frameworks
+    and content guidance.
+  agent: input_analyst
+
+design_article_frameworks:
+  description: >-
+    Develop structured article frameworks for three full articles in markdown format.
+    Each framework must incorporate the selected key input variables, adhere to the
+    brand guidelines and tone of voice, and demonstrate relevance to the target audience.
+    The frameworks should include headings, subheadings, bullet points, SEO keywords,
+    and placeholders for personal experience as per {personal_experience_guidance}.
+    The frameworks should provide explicit guidance without writing the article content
+    for the user.
+  expected_output: >-
+    Three detailed article frameworks in markdown format that explicitly reference
+    {raw_materials}, {brand_guidelines}, {target_audience}, {tone_of_voice}, {seo_keywords},
+    {article_structure_preferences}, and {personal_experience_guidance}. Frameworks
+    must be structured for user customization and avoid fabrication or assumptions.
+  agent: content_designer
+
+validate_article_alignment_and_output_format:
+  description: >-
+    Review and validate the article frameworks to ensure they meet all objectives:
+    use of provided information, brand adherence, audience relevance, inclusion of
+    SEO keywords, appropriate article structure, and annotated personal experience
+    guidance. Confirm that the final output format is markdown and includes editorial
+    guidance without authoring content on the user’s behalf.
+  expected_output: >-
+    A validation report confirming all three article frameworks strictly follow {brand_guidelines},
+    {output_format}, and all other selected input variables. Ensure deliverables match
+    the crew's output objectives exactly.
+  agent: quality_assurance_specialist
+

@@ -263,10 +263,9 @@ class DesignCrew:
                 self.design_crew_input(),
                 self.design_tasks(),
                 self.design_agents(),
-                # Temporarily removed review tasks to reduce API calls
-                # self.review_tasks_and_agents(),
-                # self.prepare_review_changes(),
-                # self.write_review_changes(),
+                self.review_tasks_and_agents(),
+                self.prepare_review_changes(),
+                self.write_review_changes(),
             ],
             process=Process.sequential,
             # memory=True,

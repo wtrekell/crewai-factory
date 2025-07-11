@@ -1,0 +1,45 @@
+select_guiding_input_variables:
+  agent: input_analyst_agent
+  description: >-
+    Identify and select the 1-3 most relevant variables from the provided input data
+    that will serve as the foundation and guiderails for writing the three full articles.
+    These variables must be explicitly referenced in all article task descriptions
+    and outputs to ensure alignment with the crew's overall purpose and output objectives.
+  expected_output: >-
+    A definitive list of 1-3 core input variables chosen from the project's input
+    set (e.g., raw_materials, brand_guidance, target_audience, seo_keywords, main_topics,
+    writing_style, content_length, user_personal_insights) with justification for
+    their selection based on relevance to article creation, brand alignment, audience
+    targeting, and SEO optimization.
+
+develop_article_writing_frameworks:
+  agent: content_designer_agent
+  description: >-
+    Using the selected input variables (explicitly referenced by their names) as guiderails,
+    create detailed descriptions and structured frameworks for three full articles
+    in markdown format. Each framework must include guidance on adhering to the brand
+    voice and tone, relevance to the target audience, SEO keyword integration, article
+    structure with headings and bullet points, and annotated prompts for user-added
+    personal insights. The frameworks should emphasize adherence to forbidden content
+    restrictions and avoid fabrication of information.
+  expected_output: >-
+    Three article frameworks in markdown format that specify article type, thematic
+    structure, SEO keyword usage, tone and style instructions, and prompts for users
+    to add their personal experiences. Each framework must clearly reference the guiding
+    input variables to ensure consistency and completeness.
+
+quality_assurance_and_final_output_refinement:
+  agent: quality_assurance_agent
+  description: >-
+    Review and refine the article frameworks against the initial guiding input variables
+    to ensure all crew output objectives are met. This includes verification that
+    content aligns with brand guidance, is relevant to the target audience, incorporates
+    SEO keywords effectively, uses the requested writing style, and includes clear
+    user guidance without overstepping to author content. Ensure no forbidden content
+    is present and that the instructions for user personal insights are clear and
+    actionable.
+  expected_output: >-
+    Validated and polished final article writing task descriptions and outputs, ready
+    for use by end-users, explicitly tied to the selected input variables. Confirmation
+    that each article framework enables users to produce content according to the
+    crew's stated objectives.
