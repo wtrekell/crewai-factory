@@ -1,53 +1,54 @@
 # Crew Execution Results
 
-Successfully wrote all required files. Here are their contents:
+All files have been successfully written with the requested content. Here is the full content of each file:
 
-1. tasks.yaml (in output_digital publication editorial team/config/):
-```
-- name: analyze_brand_voice
-  description: 'Review and analyze {brand_guidance} to extract key tone and style principles.'
-  agent: Brand Analyst
+---
 
-- name: create_audience_framework
-  description: 'Analyze {target_audience} characteristics to create detailed profiles for content strategies.'
-  agent: Audience Researcher
+**output_digital publication editorial team/config/tasks.yaml**
+```yaml
+- name: Source Material Extraction
+  description: "Systematically review {raw_materials} to extract, organize, and summarize the most robust facts, citations, quotes, themes, or key points suitable as the foundation for each article type, ensuring that findings specifically address {content_objectives}, {article_types}, and integrate {seo_keywords} where relevant."
+  expected_output: "A structured outline of key material from {raw_materials} for each article, annotated with its origin and relevance."
+  agent: Content Research Specialist
 
-- name: develop_structure_template
-  description: 'Create flexible templates for content structure in compliance with {document_structure}.'
-  agent: Content Architect
+- name: Audience and Brand Alignment
+  description: "Evaluate the outlines referencing {raw_materials} and revise them to ensure every article concept, section, and tone recommendation follows {brand_guidelines}, resonates with {target_audience_profile}, incorporates {user_personalization_guidelines}, and addresses each article’s {content_objectives}."
+  expected_output: "Three detailed, article-specific blueprints mapping each section to {brand_guidelines}, identifying suitable vocabulary, tone, and points of personalization for the {target_audience_profile}."
+  agent: Content Architecture Specialist
 
-- name: create_integration_guide
-  description: 'Develop a guide to blend insights with frameworks aligning with {brand_guidance} and {target_audience}.'
-  agent: Content Integration Specialist
-```
-
-2. agents.yaml (in output_digital publication editorial team/config/):
-```
-agents:
-  - name: Brand Analyst
-    role: 'Senior Brand Voice Strategist'
-    goal: 'Align content with brand guidelines for authenticity and engagement'
-    backstory: 'Dr. Sarah Chen, an expert in brand voice strategy known for her tonal element and framework creation.'
-
-  - name: Audience Researcher
-    role: 'Target Audience Intelligence Director'
-    goal: 'Develop demographic insights for engaging content.'
-    backstory: 'Marcus Rodriguez, transitioned from behavioral psychology to audience analysis, renowned for practical guideline development'
-
-  - name: Content Architect
-    role: 'Structure and Format Strategist'
-    goal: 'Design scalable, engaging content frameworks.'
-    backstory: 'Alexandra Patel known for adaptable templates, bridging UX and engagement.'
-
-  - name: Content Integration Specialist
-    role: 'Narrative Integration Expert'
-    goal: 'Blend narratives with brand content for authenticity'
-    backstory: 'James O'Connor specialized in integrating personal stories with structured content.'
+- name: Framework and SEO Integration
+  description: "Combine the approved blueprints with requirements for clear structure, annotated user guidance, and SEO best practices, referencing {raw_materials}, {brand_guidelines}, {seo_keywords}, and {target_audience_profile} explicitly. Ensure all frameworks are annotated to prompt user personalization per {user_personalization_guidelines}, are consistent with {desired_article_length}, and remain localized according to {language_and_region}."
+  expected_output: "Three complete markdown article frameworks: each framework strictly references {raw_materials}, follows {brand_guidelines}, directly addresses the {target_audience_profile}, incorporates SEO structure, provides clear user annotation/prompts for personalization, and avoids any unsupported content."
+  agent: Content Architecture Specialist
 ```
 
-3. crew_input.yaml (in output_digital publication editorial team/):
+---
+
+**output_digital publication editorial team/config/agents.yaml**
+```yaml
+- name: Content Research Specialist
+  role: Lead Fact-Finder and Material Synthesizer
+  goal: "To extract, organize, and distill the most relevant and accurate insights from raw materials, providing a clear and credible factual foundation for every article type."
+  backstory: "Content Research Specialist brings a rigorous, evidence-first mindset and an insatiable curiosity, honed through years of experience as a research analyst for digital publishers. Known for a precise and objective communication style, this agent presents findings in well-annotated lists or concise summaries, ensuring every data point aligns with established journalistic standards. The Specialist prioritizes transparency of sources and a collaborative approach, frequently providing cross-references and context notes to empower colleagues and maintain fidelity to brand and audience needs."
+
+- name: Content Architecture Specialist
+  role: Integrated strategist and framework designer who specializes in aligning article blueprints to both brand/audience requirements and structural/SEO imperatives, while embedding guidance for user personalization and platform compliance.
+  goal: "To deliver fully-aligned, actionable article frameworks that optimize clarity, search performance, audience engagement, and platform suitability, drawing from raw insights and detailed instruction sets."
+  backstory: "The Content Architecture Specialist blends expertise in editorial strategy, audience development, digital publishing, and SEO. With years spent bridging creativity and compliance, this agent is methodical, detail-oriented, and collaborative, ensuring frameworks are both engaging and operationally robust. Clear communication and cross-disciplinary coordination are hallmarks of their approach. This agent’s remit is fully inclusive of {user_personalization_guidelines}, {desired_article_length}, and {language_and_region}, ensuring frameworks respect editorial, structural, and localization requirements."
 ```
-brand_guidance: Example Brand Guidelines
-target_audience: Target Audience Description
-document_structure: Sample Document Structure
+
+---
+
+**output_digital publication editorial team/config/crew_input.yaml**
+```yaml
+raw_materials: "Insert relevant research documents or sources here"
+content_objectives: "Summarize key topics or goals for the articles"
+article_types: "List of targeted article types (e.g., case study, how-to, opinion)"
+seo_keywords: "Primary SEO keywords or phrases to integrate"
+brand_guidelines: "Brand voice, values, and stylistic rules document"
+target_audience_profile: "Detailed persona or audience summary"
+user_personalization_guidelines: "Instructions/examples for where and how users should personalize content"
+desired_article_length: "Wordcount or section/structure targets for each article"
+language_and_region: "e.g., en-US, fr-CA"
 ```
+All content is confirmed written and matches the required specifications.

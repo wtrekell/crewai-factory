@@ -146,27 +146,27 @@ docs_singlefile = TextFileKnowledgeSource(
 )
 
 efficient_llm = LLM(
-    model="gpt-4o-mini",
+    model="gpt-4.1-mini-2025-04-14",
 )
 balanced_llm = LLM(
-    model="gpt-4o",
+    model="gpt-4.1-2025-04-14",
 )
 reasoning_mini_llm = LLM(
-    model="o1-mini",
+    model="gpt-4.1-mini-2025-04-14",
 )
 reasoning_llm = LLM(
-    model="o1-preview",
+    model="gpt-4.1-2025-04-14",
 )
 coding_llm = LLM(
-    model="gemini/gemini-2.5-pro",
+    model="gpt-4.1-2025-04-14",
     # temperature=0.7,
 )
 thinking_llm = LLM(
-    model="anthropic/claude-3-5-sonnet-20241022",
+    model="gpt-4.1-2025-04-14",
     # temperature=0.7,
 )
 review_llm = LLM(
-    model="gpt-4o",
+    model="gpt-4.1-2025-04-14",
 )
 
 
@@ -212,10 +212,10 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool, file_read_tool, file_write_tool],
             allow_delegation=False,
             verbose=True,
-            llm=thinking_llm,
-            max_iter=15,
-            max_retry_limit=3,
-            max_execution_time=300,
+            llm=balanced_llm,
+            max_iter=20,
+            max_retry_limit=5,
+            max_execution_time=600,
             respect_context_window=True
         )
         return content_designer
@@ -291,6 +291,8 @@ class DesignCrew:
             tools=[file_write_tool],
             callback=lambda output: write_review_changes_callback(f"{self.output_dir}/config"),
             output_file=f"{self.output_dir}/config/design_result.yaml",
+            guardrail=validate_non_empty_output,
+            max_retries=5
         )
 
     @crew

@@ -47,14 +47,25 @@ class CrewFactoryCrew:
             print(f"   └── src/input.json")
             print(f"📄 Results summary: design_crew_results.md")
             
+            # Enable CodingCrew for complete implementation generation
+            crew_input['design_crew_result'] = result.raw if result else None
+            coding_crew_instance = CodingCrew(crew_input.get('crew_name'), design_crew_instance.output_dir)
+            coding_crew = coding_crew_instance.crew()
+            
+            print(f"\n🚀 Starting Coding Crew...")
+            print(f"📝 Generating implementation from design specifications...")
+            
+            result = coding_crew.kickoff(crew_input)
+            self.save_result(result, 'coding_crew')
+            
+            print(f"\n✅ Coding Crew completed successfully!")
+            print(f"📁 Implementation files saved to: {coding_crew_instance.output_dir}")
+            print(f"   └── crew.py (main implementation)")
+            print(f"   └── src/ (support files)")
+            print(f"   └── tests/ (test files)")
+            print(f"📄 Results summary: coding_crew_results.md")
+            
             return result
-
-            # TODO: Re-enable after fixing rate limiting
-            # crew_input['design_crew_result'] = result.raw if result else None
-            # coding_crew = CodingCrew(crew_input.get('crew_name')).crew()
-            # result = coding_crew.kickoff(crew_input)
-            # self.save_result(result, 'coding_crew')
-            # return result
 
         except Exception as e:
             logging.error(f"Unexpected error occurred: {e}")
