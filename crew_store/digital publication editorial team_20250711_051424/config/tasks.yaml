@@ -1,0 +1,40 @@
+analyze_brand_voice:
+  agent: brand_analyst
+  description: >-
+    Review and analyze {brand_guidance} to extract key tone, style, and writing principles.
+    Create a comprehensive guide that will ensure consistency across all article frameworks
+    while maintaining space for personal voice.
+  expected_output: >-
+    A detailed brand voice guide including: 1. Key tone characteristics 2. Writing
+    style principles 3. Do's and Don'ts 4. Example phrases and transitions that align
+    with brand voice
+
+create_audience_framework:
+  agent: audience_researcher
+  description: >-
+    Analyze {target_audience} characteristics and create detailed persona profiles
+    to guide content relevance and value proposition for each article framework.
+  expected_output: >-
+    Audience framework document containing: 1. Detailed persona profiles 2. Key pain
+    points and interests 3. Value proposition guidelines 4. Content relevance checklist
+
+develop_structure_template:
+  agent: content_architect
+  description: >-
+    Create flexible article templates based on {document_structure} requirements that
+    incorporate proper heading hierarchy, content flow, and annotation points for
+    personal insights.
+  expected_output: >-
+    Three article templates with: 1. Clear heading structure 2. Content block placement
+    3. Annotation markers for personal insights 4. Formatting guidelines 5. Placement
+    suggestions for different content types
+
+create_integration_guide:
+  agent: content_integration_specialist
+  description: >-
+    Develop a comprehensive guide that shows how to blend personal insights with the
+    established framework while maintaining {brand_guidance} and appealing to {target_audience}.
+  expected_output: >-
+    Integration guide including: 1. Personal insight integration points 2. Voice blending
+    techniques 3. Examples of successful personal story integration 4. Guidelines
+    for maintaining brand voice while being authentic

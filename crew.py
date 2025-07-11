@@ -10,7 +10,7 @@ from crewai import LLM
 
 # Temporary replacement for missing crewai_tools
 from crewai.tools import BaseTool
-from typing import Any
+from typing import Any, Tuple
 from pydantic import Field
 import os
 import json
@@ -94,8 +94,34 @@ class CodeDocsSearchTool(BaseTool):
 from helpers.get_docs_string import LocalTxTFileKnowledgeSource
 from helpers.helper import validate_and_save_yaml_from_pydantic_list, write_review_changes_callback
 from models import TasksModel, AgentsModel
+from crewai.task import TaskOutput
 from tools.files_langchain import FileManagementTool
 from tools.shell_tool import ShellCommandTool
+
+# Validation functions for task guardrails
+def validate_json_output(result: TaskOutput) -> Tuple[bool, Any]:
+    """Validate that task output is valid JSON format."""
+    try:
+        data = json.loads(result.raw)
+        return (True, data)
+    except json.JSONDecodeError:
+        return (False, "Invalid JSON format. Please provide valid JSON.")
+
+def validate_yaml_output(result: TaskOutput) -> Tuple[bool, Any]:
+    """Validate that task output is valid YAML format."""
+    try:
+        import yaml
+        data = yaml.safe_load(result.raw)
+        return (True, data)
+    except yaml.YAMLError:
+        return (False, "Invalid YAML format. Please provide valid YAML.")
+
+def validate_non_empty_output(result: TaskOutput) -> Tuple[bool, Any]:
+    """Validate that task output is not empty."""
+    if result.raw and result.raw.strip():
+        return (True, result.raw)
+    return (False, "Output cannot be empty. Please provide meaningful content.")
+
 # Placeholder for PlaywrightTool - install playwright if needed
 class PlaywrightTool(BaseTool):
     name: str = "Playwright Browser"
@@ -119,28 +145,28 @@ docs_singlefile = TextFileKnowledgeSource(
     file_paths=["singlefile.txt"]
 )
 
-gpt4o_mini = LLM(
-    model="gpt-4.1-mini-2025-04-14",
+efficient_llm = LLM(
+    model="gpt-4o-mini",
 )
-gpt4o = LLM(
-    model="gpt-4.1-mini-2025-04-14",
+balanced_llm = LLM(
+    model="gpt-4o",
 )
-gpt1o_mini = LLM(
-    model="gpt-4.1-mini-2025-04-14",
+reasoning_mini_llm = LLM(
+    model="o1-mini",
 )
-gpt1o = LLM(
-    model="gpt-4.1-mini-2025-04-14",
+reasoning_llm = LLM(
+    model="o1-preview",
 )
-gemini2 = LLM(
+coding_llm = LLM(
     model="gemini/gemini-2.5-pro",
     # temperature=0.7,
 )
-gemini2think = LLM(
-    model="gemini/gemini-2.5-pro",
+thinking_llm = LLM(
+    model="anthropic/claude-3-5-sonnet-20241022",
     # temperature=0.7,
 )
-claude = LLM(
-    model="anthropic/claude-sonnet-4-20250514",
+review_llm = LLM(
+    model="gpt-4o",
 )
 
 
@@ -171,8 +197,11 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool, file_read_tool, file_write_tool],
             allow_delegation=False,
             verbose=True,
-            llm=gpt4o_mini,
-            max_iter=1,
+            llm=efficient_llm,
+            max_iter=10,
+            max_retry_limit=3,
+            max_execution_time=180,
+            respect_context_window=True
         )
         return content_designer
 
@@ -183,8 +212,11 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool, file_read_tool, file_write_tool],
             allow_delegation=False,
             verbose=True,
-            llm=gpt4o_mini,
-            max_iter=1,
+            llm=thinking_llm,
+            max_iter=15,
+            max_retry_limit=3,
+            max_execution_time=300,
+            respect_context_window=True
         )
         return content_designer
 
@@ -194,8 +226,11 @@ class DesignCrew:
             config=self.agents_config['qa_expert'],
             tools=[search_tool, web_rag_tool, file_write_tool],
             verbose=True,
-            llm=gpt4o_mini,
-            max_iter=1
+            llm=review_llm,
+            max_iter=12,
+            max_retry_limit=3,
+            max_execution_time=240,
+            respect_context_window=True
         )
 
     @task
@@ -215,6 +250,8 @@ class DesignCrew:
             output_pydantic=TasksModel,
             callback=lambda output: validate_and_save_yaml_from_pydantic_list(output,
                                                                               f"{self.output_dir}/config/tasks.yaml"),
+            guardrail=validate_non_empty_output,
+            max_retries=3
         )
 
     @task
@@ -226,7 +263,8 @@ class DesignCrew:
             output_pydantic=AgentsModel,
             callback=lambda output: validate_and_save_yaml_from_pydantic_list(output,
                                                                               f"{self.output_dir}/config/agents.yaml"),
-
+            guardrail=validate_non_empty_output,
+            max_retries=3
         )
 
     @task
@@ -304,8 +342,11 @@ class CodingCrew:
         return Agent(
             config=self.agents_config['architect'],
             tools=[search_tool, file_read_tool, web_rag_tool],
-            llm=gpt4o_mini,
-            max_iter=3
+            llm=reasoning_llm,
+            max_iter=15,
+            max_retry_limit=3,
+            max_execution_time=300,
+            respect_context_window=True
         )
 
     @agent
@@ -319,8 +360,11 @@ class CodingCrew:
                 self.directorySearchTool,
                 search_tool
             ],
-            llm=gemini2,
-            max_iter=2
+            llm=coding_llm,
+            max_iter=20,
+            max_retry_limit=3,
+            max_execution_time=600,
+            respect_context_window=True
         )
 
     @agent
@@ -332,8 +376,11 @@ class CodingCrew:
                 docsSearchRagTool,
                 search_tool
             ],
-            llm=claude,
-            max_iter=3
+            llm=thinking_llm,
+            max_iter=15,
+            max_retry_limit=3,
+            max_execution_time=300,
+            respect_context_window=True
         )
 
     @agent
@@ -346,8 +393,11 @@ class CodingCrew:
                 code_interpreter_tool,
                 shell_tool
             ],
-            llm=gpt4o_mini,
-            max_iter=3
+            llm=review_llm,
+            max_iter=12,
+            max_retry_limit=3,
+            max_execution_time=240,
+            respect_context_window=True
         )
 
     @task

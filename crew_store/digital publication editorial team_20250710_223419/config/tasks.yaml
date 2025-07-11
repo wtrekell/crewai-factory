@@ -1,0 +1,44 @@
+content_framework_development:
+  description: >-
+    Using {brand_guidance} and analyzing target audience needs, create a detailed
+    outline for each article including proposed headings, subheadings, and key points
+    to cover. Ensure alignment with brand voice and audience expectations.
+  expected_output: >-
+    Three detailed article outlines with: 1. Main headings and subheadings 2. Key
+    points under each section 3. Suggested placement for personal insights 4. Brand
+    voice guidelines applied
+  agent: content_strategist
+
+research_integration:
+  description: >-
+    Review and organize {raw_materials} to support each outline section. Identify
+    gaps where additional research is needed. Create annotations for fact-checking
+    and reference placement.
+  expected_output: >-
+    Organized research document for each article including: 1. Verified facts and
+    data points 2. Source citations 3. Identified gaps requiring additional information
+    4. Research-backed talking points
+  agent: research_analyst
+
+personal_experience_framework:
+  description: >-
+    Analyze {user_experience_notes} to create guidance sections within each article
+    where personal insights should be incorporated. Develop prompts and questions
+    to help users integrate their experiences naturally.
+  expected_output: >-
+    Personalization guide for each article including: 1. Designated sections for personal
+    insights 2. Guiding questions for user reflection 3. Examples of how to integrate
+    personal experience 4. Transition suggestions
+  agent: content_personalization_specialist
+
+article_structure_optimization:
+  description: >-
+    Combine the outline, research, and personalization frameworks into a final structure
+    that ensures all output objectives are met, particularly focusing on readability
+    and SEO elements.
+  expected_output: >-
+    Final structured template for each article including: 1. Complete section flow
+    2. Research placement markers 3. Personal insight integration points 4. SEO optimization
+    suggestions
+  agent: content_architecture_lead
+

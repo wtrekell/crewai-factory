@@ -1,0 +1,49 @@
+content_structure_planning:
+  description: >-
+    Create detailed outlines for three articles incorporating {SEO_keywords} and ensuring
+    appeal to {target_audience}. Each outline should include main headings, subheadings,
+    and placeholders for personal experience sections.
+  expected_output: >-
+    Three detailed article outlines with: 1. Clear hierarchical structure 2. SEO keyword
+    placement suggestions 3. Identified sections for personal insights 4. Bullet points
+    for key topics to cover
+  agent: content_strategist
+
+brand_voice_framework:
+  description: >-
+    Develop writing guidelines that align with {brand_guidance} while maintaining
+    appeal to {target_audience}. Include specific examples and phrasings that reflect
+    the desired tone.
+  expected_output: >-
+    Writing style guide including: 1. Tone examples 2. Recommended vocabulary 3. Sentence
+    structure suggestions 4. Do's and don'ts for maintaining brand voice
+  agent: brand_voice_specialist
+
+seo_optimization_strategy:
+  description: >-
+    Create an SEO strategy using {SEO_keywords} that naturally integrates into the
+    article structures while maintaining readability for {target_audience}.
+  expected_output: >-
+    SEO implementation guide including: 1. Keyword placement recommendations 2. Density
+    guidelines 3. Meta description templates 4. Header tag optimization suggestions
+  agent: seo_expert
+
+personal_insight_framework:
+  description: >-
+    Design templates for integrating personal experiences while maintaining {brand_guidance}
+    and appealing to {target_audience}.
+  expected_output: >-
+    Framework document including: 1. Prompting questions for personal insights 2.
+    Integration guidelines 3. Examples of effective personal story incorporation 4.
+    Transition phrases for smooth narrative flow
+  agent: content_editor
+
+article_assembly_guide:
+  description: >-
+    Create comprehensive assembly instructions that combine all elements while ensuring
+    {brand_guidance} consistency and {SEO_keywords} integration.
+  expected_output: >-
+    Detailed guide including: 1. Article assembly checklist 2. Quality control criteria
+    3. Brand voice verification steps 4. SEO implementation verification
+  agent: production_manager
+
