@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
@@ -150,9 +151,16 @@ class DesignCrew:
 
     def __init__(self, crew_name=None):
         self.crew_name = 'default_name' if crew_name is None else crew_name
+        
+        # Create timestamped crew store directory
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.output_dir = f"crew_store/{self.crew_name}_{timestamp}"
+        os.makedirs(self.output_dir, exist_ok=True)
+        os.makedirs(f"{self.output_dir}/config", exist_ok=True)
+        os.makedirs(f"{self.output_dir}/src", exist_ok=True)
 
         self.file_toolkit = FileManagementTool(
-            root_dir=f"./{self.crew_name}",
+            root_dir=f"./{self.output_dir}",
             selected_tools=["read_file", "write_file", "list_directory"]
         )
 
@@ -195,7 +203,7 @@ class DesignCrew:
         return Task(
             config=self.tasks_config['design_crew_input'],
             tools=[search_tool, scrape_website_tool],
-            output_file=f"output_{self.crew_name}/src/input.json",
+            output_file=f"{self.output_dir}/src/input.json",
         )
 
     @task
@@ -206,7 +214,7 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool],
             output_pydantic=TasksModel,
             callback=lambda output: validate_and_save_yaml_from_pydantic_list(output,
-                                                                              f"output_{self.crew_name}/config/tasks.yaml"),
+                                                                              f"{self.output_dir}/config/tasks.yaml"),
         )
 
     @task
@@ -217,7 +225,7 @@ class DesignCrew:
             tools=[search_tool, scrape_website_tool],
             output_pydantic=AgentsModel,
             callback=lambda output: validate_and_save_yaml_from_pydantic_list(output,
-                                                                              f"output_{self.crew_name}/config/agents.yaml"),
+                                                                              f"{self.output_dir}/config/agents.yaml"),
 
         )
 
@@ -226,7 +234,7 @@ class DesignCrew:
         return Task(
             config=self.tasks_config['review_tasks_and_agents'],
             context=[self.design_crew_input(), self.design_tasks(), self.design_agents()],
-            output_file=f"output_{self.crew_name}/config/review.md",
+            output_file=f"{self.output_dir}/config/review.md",
         )
 
     @task
@@ -243,8 +251,8 @@ class DesignCrew:
             config=self.tasks_config['write_review_changes'],
             context=[self.prepare_review_changes()],
             tools=[file_write_tool],
-            callback=lambda output: write_review_changes_callback(f"output_{self.crew_name}/config"),
-            output_file=f"output_{self.crew_name}/config/design_result.yaml",
+            callback=lambda output: write_review_changes_callback(f"{self.output_dir}/config"),
+            output_file=f"{self.output_dir}/config/design_result.yaml",
         )
 
     @crew
@@ -272,9 +280,21 @@ class CodingCrew:
     agents_config = 'config/coding_crew/agents.yaml'
     tasks_config = 'config/coding_crew/tasks.yaml'
 
-    def __init__(self, crew_name=None):
+    def __init__(self, crew_name=None, design_output_dir=None):
         self.crew_name = crew_name or 'default_name'
-        self.output_dir = f"output_{self.crew_name}"
+        
+        # Use the same timestamped directory as DesignCrew if provided
+        if design_output_dir:
+            self.output_dir = design_output_dir
+        else:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.output_dir = f"crew_store/{self.crew_name}_{timestamp}"
+            os.makedirs(self.output_dir, exist_ok=True)
+            
+        # Ensure additional directories exist
+        os.makedirs(f"{self.output_dir}/src", exist_ok=True)
+        os.makedirs(f"{self.output_dir}/tests", exist_ok=True)
+        
         self.directorySearchTool = DirectorySearchTool(directory=self.output_dir)
 
         self.review_iteration = 0

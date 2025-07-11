@@ -1,0 +1,65 @@
+select_key_input_variables:
+  description: >-
+    Identify and select 1-3 variables from the project inputs that are most relevant
+    to generating the list of ideas about {topic}, ensuring these selected variables
+    directly guide the content and structure of the ideas.
+  expected_output: >-
+    A concise list of 1-3 explicitly referenced input variables such as {topic}, {market_niche},
+    and {technical_complexity_level} to be used as guiding references in idea generation.
+  agent: content_strategist
+
+research_healthcare_ai_trends:
+  description: >-
+    Conduct research using {preferred_sources} to gather current trends, advancements,
+    and applications related to {topic} in the {market_niche} sector, emphasizing
+    content relevant to the {technical_complexity_level} required.
+  expected_output: >-
+    A factual summary of up-to-date AI applications in healthcare, citing peer-reviewed
+    journals, industry reports, and trusted news sites to support idea development.
+  agent: research_analyst
+
+generate_topic_ideas_table:
+  description: >-
+    Create a comprehensive table in a YAML file format containing at least 10 ideas
+    about {topic} in {market_niche}. Each idea must include a brief description, the
+    {technical_complexity_level}, target market niche, and the estimated market size
+    referencing the {estimated_market_size}.
+  expected_output: >-
+    A YAML file with 10+ structured ideas, each listing its description, technical
+    complexity, target market niche, and estimated market size clearly aligned with
+    the project’s guiding input variables.
+  agent: idea_developer
+
+write_article_content_outline:
+  description: >-
+    Develop a detailed content outline for a 1500-word article that is informative,
+    professional, and accessible, tailored to {target_audience} on the topic of {topic}.
+    Include key points that integrate the {keyword_focus} and incorporate the selected
+    input variables.
+  expected_output: >-
+    An article outline that maps out sections and key messages, ensuring alignment
+    with the {tone_and_style}, {content_length}, and content objectives.
+  agent: content_writer
+
+draft_social_media_post:
+  description: >-
+    Compose a concise 150-word social media post that highlights the most engaging
+    ideas from the YAML ideas table, designed to attract {target_audience}. The post
+    should maintain an {informative} and {professional} tone and integrate relevant
+    keywords from {keyword_focus}.
+  expected_output: >-
+    A polished social media post draft ready for posting, summarizing key ideas effectively
+    for engagement while reflecting the {tone_and_style}.
+  agent: social_media_specialist
+
+review_and_quality_check:
+  description: >-
+    Perform a thorough review of the YAML file with ideas, article outline, and social
+    media draft to ensure all content adheres to project guidelines, input variables,
+    and expected output formats. Confirm all ideas have technical complexity, market
+    niche, and market size explicitly referenced.
+  expected_output: >-
+    A quality assured set of outputs with corrections and suggestions for improvements
+    documented if needed.
+  agent: quality_assurance_lead
+

@@ -1,17 +1,19 @@
 crew_name: digital publication editorial team
-crew_purpose: analyze topic specific materials and write the specified articles and social media posts for a digital publication
+crew_purpose: review raw materials for article, ghost write article types specified by user with supporting social media posts.
 crew_output: >
-  Table of ideas in `.yaml` file.
-  The list should contain at least 10 ideas. Each idea should be described in a few sentences.
-  Each idea should have:
-  1. technical complexity level
-  2. target market niche
-  3. estimated market size
-variable_name: "project_theme"
+  Three full articles in markdown format.
+  The articles:
+  1. MUST use the provided information to write articles.
+  2. MUST adhere to the brand guidance and tone of voice.
+  3. MUST demonstrate the relevance to the target audience.
+  4. MUST be of interest or provide value to the target audience.
+  5. MUST include relevant keywords for SEO optimization.
+  6. MUST be structured with headings, subheadings, and bullet points where appropriate
+  7. MUST provided annotated guidance for the user to include their pesonal experience and insights
+  8. MUST NOT write in place of the user, but provide a framework for them to add their personal touch.
+  9. MUST NOT assume, extrapolate, or fabricate information.
+variable_name: "article_name"
 variable: "educational_focus"
-target_market_niche: user experience design and artificial intelligence
-user_demographics: tech-savvy professionals aged 25-45
-technical_complexity_level: medium
-estimated_market_size: $500M-1B
-innovation_focus: AI-powered user experience optimization
-idea_format_preference: structured yaml format
+publication: "Syntax & Empathy"
+target_audience: product, service, and user experience designers
+topical_domain: professional designers learning on how to benefit from LLMs in their work

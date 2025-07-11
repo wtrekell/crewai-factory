@@ -34,13 +34,19 @@ class CrewFactoryCrew:
             with open('crew_input.yaml', 'r') as file:
                 crew_input = yaml.safe_load(file)
 
-            design_crew = DesignCrew(crew_input.get('crew_name')).crew()
+            design_crew_instance = DesignCrew(crew_input.get('crew_name'))
+            design_crew = design_crew_instance.crew()
             result = design_crew.kickoff(crew_input)
             self.save_result(result, 'design_crew')
 
-            # Temporarily disable CodingCrew to avoid API rate limits
+            # Show where files were created
             print(f"\n✅ Design Crew completed successfully!")
-            print(f"📁 Results saved to: design_crew_results.md")
+            print(f"📁 Crew files saved to: {design_crew_instance.output_dir}")
+            print(f"   └── config/tasks.yaml")
+            print(f"   └── config/agents.yaml") 
+            print(f"   └── src/input.json")
+            print(f"📄 Results summary: design_crew_results.md")
+            
             return result
 
             # TODO: Re-enable after fixing rate limiting
