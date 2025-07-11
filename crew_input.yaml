@@ -1,7 +1,7 @@
-crew_name: brand editorial team
-crew_purpose: analyze materials provided by the user and ghost write on-brand content for the user to finish 
+crew_name: digital publication editorial team
+crew_purpose: analyze topic specific materials and write the specified articles and social media posts for a digital publication
 crew_output: >
-  table of ideas in `.md` file.
+  Table of ideas in `.yaml` file.
   The list should contain at least 10 ideas. Each idea should be described in a few sentences.
   Each idea should have:
   1. technical complexity level
