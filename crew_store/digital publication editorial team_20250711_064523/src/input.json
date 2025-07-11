@@ -1,0 +1,10 @@
+{
+  "raw_materials": "Text, documents, URLs, or notes containing information and data the articles will be based on",
+  "article_type": "Type of article requested by user, e.g., 'how-to', 'listicle', 'opinion', 'informative', 'review'",
+  "target_audience": "Description of intended readers including demographics, interests, and needs to ensure relevance and value",
+  "brand_guidance": "Brand guidelines including tone of voice, style rules, values, and messaging to ensure consistency",
+  "seo_keywords": "A list of keywords or phrases to be naturally incorporated for search engine optimization",
+  "user_preferences": "Additional user instructions or preferences about article structure, length, or style",
+  "social_media_platforms": "List of social media channels for which supporting posts will be created, e.g., Twitter, LinkedIn",
+  "content_restrictions": "Any limitations or prohibitions on content, such as no fabrication, no sensitive topics, or legal constraints"
+}

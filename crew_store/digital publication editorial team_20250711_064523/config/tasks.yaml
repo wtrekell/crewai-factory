@@ -1,0 +1,37 @@
+content_extraction:
+  agent: content_analyst
+  description: >-
+    Extract factual and relevant information from the provided {raw_materials} to
+    build a reliable foundation for the article content, ensuring that only the information
+    present in the source material is used and accurately referenced. Annotate where
+    the user should incorporate their personal experience or insights.
+  expected_output: >-
+    A comprehensive summary document outlining key points, data, and facts from {raw_materials},
+    each section annotated to indicate where the user can add personal commentary
+    or experience. The summary will include references to source material and flag
+    areas where user input is recommended.
+
+brand_tone_alignment:
+  agent: brand_stylist
+  description: >-
+    Analyze {brand_guidance} to determine the tone of voice, style, and messaging
+    requirements. Use this to create style guidelines and ensure that all article
+    drafts align with brand identity, flagging sections where tone adherence or specific
+    language is crucial.
+  expected_output: >-
+    A brand tone checklist and annotated style sheet with directives and examples
+    on how to apply {brand_guidance} throughout the articles, including suggestions
+    for where user input should reflect brand values or voice.
+
+audience_relevance_structuring:
+  agent: audience_strategist
+  description: >-
+    Review {target_audience} to understand the demographic, interests, and informational
+    needs of the intended readers. Use this to plan article structure, select appropriate
+    topics, and suggest headlines and sections that will maximize engagement and value
+    to the readership.
+  expected_output: >-
+    A detailed content framework document for three articles, including proposed headlines,
+    section outlines, and audience-focused bullet points, each section labeled with
+    how it addresses specific audience needs as defined in {target_audience}, plus
+    prompts for personal insights by the user.

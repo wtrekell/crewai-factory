@@ -152,18 +152,16 @@ balanced_llm = LLM(
     model="gpt-4.1-2025-04-14",
 )
 reasoning_mini_llm = LLM(
-    model="gpt-4.1-mini-2025-04-14",
+    model="gpt-4.1-2025-04-14",
 )
 reasoning_llm = LLM(
     model="gpt-4.1-2025-04-14",
 )
 coding_llm = LLM(
     model="gpt-4.1-2025-04-14",
-    # temperature=0.7,
 )
 thinking_llm = LLM(
     model="gpt-4.1-2025-04-14",
-    # temperature=0.7,
 )
 review_llm = LLM(
     model="gpt-4.1-2025-04-14",
